@@ -1,0 +1,16 @@
+
+<div class="post-container">
+	<h2>写真を投稿</h2>
+	<form (submit)="onSubmit()">
+		<input
+			type="file"
+			accept="image/*"
+			capture="environment"
+			(change)="onFileSelected($event)"
+		/>
+		<div *ngIf="previewUrl" class="preview">
+			<img [src]="previewUrl" alt="プレビュー画像" />
+		</div>
+		<button type="submit" [disabled]="!selectedFile">投稿する</button>
+	</form>
+</div>

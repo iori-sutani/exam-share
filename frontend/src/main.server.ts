@@ -1,6 +1,9 @@
-import { bootstrapApplication } from '@angular/platform-browser';
+// main.server.ts
+import { bootstrapApplication, BootstrapContext } from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';
-import { appConfig } from './app/app.config.server'; // ファイル名はプロジェクトに合わせて
+// ★ 重要：クライアント用ではなく “サーバ用” コンフィグを使う
+import { appConfig } from './app/app.config.server';
 
-const bootstrap = () => bootstrapApplication(AppComponent, appConfig);
-export default bootstrap;
+export default function bootstrap(context: BootstrapContext) {
+  return bootstrapApplication(AppComponent, appConfig, context);
+}
