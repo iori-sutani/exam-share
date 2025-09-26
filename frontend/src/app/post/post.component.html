@@ -1,16 +1,69 @@
+<section class="post">
+	<form class="post-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+		<h1 class="title">投稿画面</h1>
 
-<div class="post-container">
-	<h2>写真を投稿</h2>
-	<form (submit)="onSubmit()">
-		<input
-			type="file"
-			accept="image/*"
-			capture="environment"
-			(change)="onFileSelected($event)"
-		/>
-		<div *ngIf="previewUrl" class="preview">
-			<img [src]="previewUrl" alt="プレビュー画像" />
+		<!-- 写真アップロード -->
+		<div class="field">
+			<label class="label">写真</label>
+			<div class="uploader">
+				<input
+					#fileInput
+					type="file"
+					accept="image/*"
+					(change)="onFileSelected($event)"
+					aria-label="過去問の写真をアップロード"
+				/>
+				<div class="uploader__hint">クリックして画像を選択</div>
+			</div>
+			<div class="preview" *ngIf="previewSrc() as src">
+				<img [src]="src" alt="プレビュー" />
+				<button type="button" class="btn btn--ghost" (click)="clearPhoto(fileInput)">画像をクリア</button>
+			</div>
+			<div class="error" *ngIf="form.get('photo')?.touched && form.get('photo')?.invalid">
+				画像は必須です
+			</div>
 		</div>
-		<button type="submit" [disabled]="!selectedFile">投稿する</button>
+
+
+			<!-- 年度選択 -->
+			<div class="field">
+				<label class="label" for="year">年度</label>
+				<select id="year" class="input" formControlName="year">
+					<option *ngFor="let y of years" [value]="y">{{ y }}</option>
+				</select>
+			</div>
+
+			<!-- 授業名入力 -->
+			<div class="field">
+				<label class="label" for="subject">授業名</label>
+				<input id="subject" class="input" type="text" formControlName="subject" placeholder="例：線形代数" maxlength="100" />
+			</div>
+
+		<!-- 学期選択 -->
+		<div class="field">
+			<span class="label">学期</span>
+			<div class="radio-group" role="radiogroup" aria-label="学期の選択">
+				<label class="radio">
+					<input type="radio" formControlName="term" value="spring" />
+					<span>前期</span>
+				</label>
+				<label class="radio">
+					<input type="radio" formControlName="term" value="fall" />
+					<span>後期</span>
+				</label>
+			</div>
+		</div>
+
+		<!-- メモ -->
+		<div class="field">
+			<label class="label" for="memo">メモ（任意）</label>
+			<textarea id="memo" class="textarea" rows="4" formControlName="memo" placeholder="例）範囲：1〜5章、記述中心"></textarea>
+			<div class="helper">{{ memoCount() }} / 500</div>
+		</div>
+
+		<!-- 送信 -->
+		<button class="btn btn--primary" type="submit" [disabled]="submitting() || form.invalid">
+			{{ submitting() ? '送信中...' : '投稿する' }}
+		</button>
 	</form>
-</div>
+</section>
