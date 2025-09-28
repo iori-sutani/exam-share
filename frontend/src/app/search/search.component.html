@@ -1,1 +1,42 @@
-<p>search works!</p>
+<section class="search">
+	<form class="search-form" [formGroup]="form" (ngSubmit)="onSearch()" novalidate>
+		<h1 class="title">検索画面</h1>
+
+		<!-- 年度選択 -->
+		<div class="field">
+			<label class="label" for="year">年度</label>
+			<select id="year" class="input" formControlName="year">
+				<option value="">すべて</option>
+				<option *ngFor="let y of years" [value]="y">{{ y }}</option>
+			</select>
+		</div>
+
+		<!-- 授業名入力 -->
+		<div class="field">
+			<label class="label" for="subject">授業名</label>
+			<input id="subject" class="input" type="text" formControlName="subject" placeholder="例：線形代数" maxlength="100" />
+		</div>
+
+		<!-- 学期選択 -->
+		<div class="field">
+			<span class="label">学期</span>
+			<div class="radio-group" role="radiogroup" aria-label="学期の選択">
+				<label class="radio">
+					<input type="radio" formControlName="term" value="spring" />
+					<span>前期</span>
+				</label>
+				<label class="radio">
+					<input type="radio" formControlName="term" value="fall" />
+					<span>後期</span>
+				</label>
+			</div>
+		</div>
+
+		<!-- 検索ボタン -->
+		<div class="search-btn-wrapper">
+			<button class="btn btn--primary" type="submit" [disabled]="form.invalid">
+				検索する
+			</button>
+		</div>
+	</form>
+</section>
