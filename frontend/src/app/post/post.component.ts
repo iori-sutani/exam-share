@@ -1,4 +1,3 @@
-
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -28,9 +27,9 @@ export class PostComponent {
 				memo: ['', [Validators.maxLength(500)]]
 			});
 
-		// 年度リスト（直近15年）
+		// 年度リスト（直近8年）
 		const current = new Date().getFullYear();
-		for (let y = current; y >= current - 15; y--) this.years.push(y);
+		for (let y = current; y >= current - 8; y--) this.years.push(y);
 	}
 
 	onFileSelected(event: Event) {
