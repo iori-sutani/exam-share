@@ -53,5 +53,10 @@ export class SearchComponent {
   onBack(): void {
     this.showResults = false;
     this.results$ = null;
+    this.form.reset({
+    year: '',
+    subject: '',
+    term: ''
+  });
   }
 }
