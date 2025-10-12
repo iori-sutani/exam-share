@@ -1,1 +1,23 @@
-<h1>タイムライン風の画面を作成していく予定</h1>
+<section class="home">
+  <h1 class="title">投稿一覧</h1>
+
+  <div class="posts">
+    <div class="post" *ngFor="let post of posts$ | async" (click)="showDetails(post)">
+      <h2 class="post-title">{{ post.subject }}</h2>
+      <p class="post-year">年度: {{ post.year }}</p>
+      <p class="post-term">学期: {{ post.term }}</p>
+    </div>
+  </div>
+
+  <!-- 詳細画面 -->
+  <div class="details-overlay" *ngIf="selectedPost" (click)="closeDetails()">
+    <div class="details" (click)="$event.stopPropagation()">
+      <h2 class="details-title">{{ selectedPost.subject }}</h2>
+      <p class="details-year">年度: {{ selectedPost.year }}</p>
+      <p class="details-term">学期: {{ selectedPost.term }}</p>
+      <img *ngIf="selectedPost.photo" [src]="selectedPost.photo" alt="投稿画像" class="details-image" />
+      <p class="details-memo">{{ selectedPost.memo }}</p>
+      <button class="close-btn" (click)="closeDetails()">閉じる</button>
+    </div>
+  </div>
+</section>
