@@ -1,42 +1,56 @@
 <section class="search">
-	<form class="search-form" [formGroup]="form" (ngSubmit)="onSearch()" novalidate>
-		<h1 class="title">検索画面</h1>
+  <!-- 検索フォーム -->
+  <form *ngIf="!showResults" class="search-form" [formGroup]="form" (ngSubmit)="onSearch()" novalidate>
+    <h1 class="title">検索画面</h1>
 
-		<!-- 年度選択 -->
-		<div class="field">
-			<label class="label" for="year">年度</label>
-			<select id="year" class="input" formControlName="year">
-				<option value="">すべて</option>
-				<option *ngFor="let y of years" [value]="y">{{ y }}</option>
-			</select>
-		</div>
+    <!-- 年度選択 -->
+    <div class="field">
+      <label class="label" for="year">年度</label>
+      <select id="year" class="input" formControlName="year">
+        <option value="">すべて</option>
+        <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+      </select>
+    </div>
 
-		<!-- 授業名入力 -->
-		<div class="field">
-			<label class="label" for="subject">授業名</label>
-			<input id="subject" class="input" type="text" formControlName="subject" placeholder="例：線形代数" maxlength="100" />
-		</div>
+    <!-- 授業名入力 -->
+    <div class="field">
+      <label class="label" for="subject">授業名</label>
+      <input id="subject" class="input" type="text" formControlName="subject" placeholder="例：線形代数" maxlength="100" />
+    </div>
 
-		<!-- 学期選択 -->
-		<div class="field">
-			<span class="label">学期</span>
-			<div class="radio-group" role="radiogroup" aria-label="学期の選択">
-				<label class="radio">
-					<input type="radio" formControlName="term" value="spring" />
-					<span>前期</span>
-				</label>
-				<label class="radio">
-					<input type="radio" formControlName="term" value="fall" />
-					<span>後期</span>
-				</label>
-			</div>
-		</div>
+    <!-- 学期選択 -->
+    <div class="field">
+      <span class="label">学期</span>
+      <div class="radio-group" role="radiogroup" aria-label="学期の選択">
+        <label class="radio">
+          <input type="radio" formControlName="term" value="spring" />
+          <span>前期</span>
+        </label>
+        <label class="radio">
+          <input type="radio" formControlName="term" value="fall" />
+          <span>後期</span>
+        </label>
+      </div>
+    </div>
 
-		<!-- 検索ボタン -->
-		<div class="search-btn-wrapper">
-			<button class="btn btn--primary" type="submit" [disabled]="form.invalid">
-				検索する
-			</button>
-		</div>
-	</form>
+    <!-- 検索ボタン -->
+    <div class="search-btn-wrapper">
+      <button class="btn btn--primary" type="submit" [disabled]="form.invalid">
+        検索する
+      </button>
+    </div>
+  </form>
+
+  <!-- 検索結果 -->
+  <div *ngIf="showResults" class="results">
+    <h1 class="title">検索結果</h1>
+    <div class="posts">
+      <div class="post" *ngFor="let post of results$ | async">
+        <h2 class="post-title">{{ post.subject }}</h2>
+        <p class="post-year">年度: {{ post.year }}</p>
+        <p class="post-term">学期: {{ post.term }}</p>
+      </div>
+    </div>
+    <button class="btn btn--secondary" (click)="onBack()">戻る</button>
+  </div>
 </section>

@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { Firestore, collection, collectionData, query, where } from '@angular/fire/firestore';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-search',
@@ -10,24 +12,46 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./search.component.scss'],
 })
 export class SearchComponent {
-  form: FormGroup;
-  years: number[] = [];
+  form: FormGroup; // 検索フォーム
+  years: number[] = [2023, 2024, 2025]; // 年度の選択肢
+  results$: Observable<any[]> | null = null; // 検索結果
+  showResults = false; // 検索結果を表示するかどうか
 
-  constructor(private fb: FormBuilder) {
-    const currentYear = new Date().getFullYear();
-    this.years = Array.from({ length: 8 }, (_, i) => currentYear - i);
+  constructor(private fb: FormBuilder, private firestore: Firestore) {
+    // フォームの初期化
     this.form = this.fb.group({
       year: [''],
       subject: [''],
-      term: [''],
+      term: ['']
     });
   }
 
-  onSearch() {
-    if (this.form.valid) {
-      // 検索条件を一時的に表示
-      console.log('検索条件:', this.form.value);
-      // TODO: API連携や結果表示処理
+  // 検索処理
+  onSearch(): void {
+    const { year, subject, term } = this.form.value;
+
+    // Firestoreクエリを作成
+    const postsCollection = collection(this.firestore, 'posts');
+    let q = query(postsCollection);
+
+    if (year) {
+      q = query(q, where('year', '==', +year));
     }
+    if (subject) {
+      q = query(q, where('subject', '==', subject));
+    }
+    if (term) {
+      q = query(q, where('term', '==', term));
+    }
+
+    // クエリ結果を取得
+    this.results$ = collectionData(q, { idField: 'id' });
+    this.showResults = true; // 検索結果を表示
+  }
+
+  // 検索結果を閉じる
+  onBack(): void {
+    this.showResults = false;
+    this.results$ = null;
   }
 }
