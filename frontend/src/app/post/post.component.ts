@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Firestore, collection, addDoc } from '@angular/fire/firestore';
 import { Storage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage';
+import { checkEmailValidity } from '../services/email.service';
+import { emailPatternValidator } from '../validators/email-domain.validator'; // カスタムバリデーターをインポート
 
 @Component({
 	selector: 'app-post',
@@ -16,6 +18,7 @@ export class PostComponent {
 	years: number[] = [];
 	previewSrc = signal<string | null>(null);
 	submitting = signal(false);
+	errorMessage = signal<string | null>(null); // エラーメッセージ用の状態
 
 	// メモ文字数カウント
 	memoCount = () => this.form.get('memo')?.value?.length ?? 0;
@@ -26,7 +29,15 @@ export class PostComponent {
 				year: [new Date().getFullYear(), Validators.required],
 				subject: ['', [Validators.required, Validators.maxLength(100)]],
 				term: ['spring', Validators.required],
-				memo: ['', [Validators.maxLength(500)]]
+				memo: ['', [Validators.maxLength(500)]],
+				email: [
+					'',
+					[
+						Validators.required,
+						Validators.email,
+						emailPatternValidator()
+					]
+				]
 			});
 
 		// 年度リスト（直近8年）
@@ -78,31 +89,48 @@ export class PostComponent {
 	async onSubmit() {
 		if (this.form.invalid) return;
 		this.submitting.set(true);
-		// ダミー送信処理（API連携は後で）
+		this.errorMessage.set(null);
 
-    let photoUrl = '';
-    const file = this.form.value.photo;
-    if (file) {
-      photoUrl = await this.uploadImageAndGetUrl(file);
-    }
+		const email = this.form.value.email;
 
-    const data = {
-      ...this.form.value,
-      photo: photoUrl,
-      createdAt: new Date()
-    };
-    await addDoc(collection(this.firestore, 'posts'), data);
+		try {
+			// メールアドレスの検証
+			const isEmailValid = await checkEmailValidity(email);
+			if (!isEmailValid) {
+				this.errorMessage.set('無効なメールアドレスです。');
+				this.submitting.set(false);
+				return;
+			}
 
-		setTimeout(() => {
-			alert('投稿が完了しました！');
-			this.form.reset({
-				photo: null,
-				year: new Date().getFullYear(),
-				term: 'spring',
-				memo: ''
-			});
-			this.previewSrc.set(null);
+			let photoUrl = '';
+			const file = this.form.value.photo;
+			if (file) {
+				photoUrl = await this.uploadImageAndGetUrl(file);
+			}
+
+			const data = {
+				...this.form.value,
+				photo: photoUrl,
+				createdAt: new Date()
+			};
+			await addDoc(collection(this.firestore, 'posts'), data);
+
+			setTimeout(() => {
+				alert('投稿が完了しました！');
+				this.form.reset({
+					photo: null,
+					year: new Date().getFullYear(),
+					term: 'spring',
+					memo: '',
+					email: ''
+				});
+				this.previewSrc.set(null);
+				this.submitting.set(false);
+			}, 1200);
+		} catch (error) {
+			console.error('投稿中にエラーが発生しました:', error);
+			this.errorMessage.set('投稿中にエラーが発生しました。');
 			this.submitting.set(false);
-		}, 1200);
+		}
 	}
 }

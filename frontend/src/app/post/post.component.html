@@ -24,20 +24,19 @@
 			</div>
 		</div>
 
+		<!-- 年度選択 -->
+		<div class="field">
+			<label class="label" for="year">年度</label>
+			<select id="year" class="input" formControlName="year">
+				<option *ngFor="let y of years" [value]="y">{{ y }}</option>
+			</select>
+		</div>
 
-			<!-- 年度選択 -->
-			<div class="field">
-				<label class="label" for="year">年度</label>
-				<select id="year" class="input" formControlName="year">
-					<option *ngFor="let y of years" [value]="y">{{ y }}</option>
-				</select>
-			</div>
-
-			<!-- 授業名入力 -->
-			<div class="field">
-				<label class="label" for="subject">授業名</label>
-				<input id="subject" class="input" type="text" formControlName="subject" placeholder="例：線形代数" maxlength="100" />
-			</div>
+		<!-- 授業名入力 -->
+		<div class="field">
+			<label class="label" for="subject">授業名</label>
+			<input id="subject" class="input" type="text" formControlName="subject" placeholder="例：線形代数" maxlength="100" />
+		</div>
 
 		<!-- 学期選択 -->
 		<div class="field">
@@ -54,6 +53,22 @@
 			</div>
 		</div>
 
+		<!-- メールアドレス入力 -->
+		<div class="field">
+			<label class="label" for="email">メールアドレス</label>
+			<input
+				id="email"
+				class="input"
+				type="email"
+				formControlName="email"
+				placeholder="大学のメールアドレスを入力してください"
+				required
+			/>
+			<div class="error" *ngIf="form.get('email')?.touched && form.get('email')?.invalid">
+				有効なメールアドレスを入力してください
+			</div>
+		</div>
+
 		<!-- メモ -->
 		<div class="field">
 			<label class="label" for="memo">メモ（任意）</label>
@@ -65,5 +80,8 @@
 		<button class="btn btn--primary" type="submit" [disabled]="submitting() || form.invalid">
 			{{ submitting() ? '送信中...' : '投稿する' }}
 		</button>
+
+		<!-- エラーメッセージ -->
+		<p *ngIf="errorMessage()" style="color: red;">{{ errorMessage() }}</p>
 	</form>
 </section>
