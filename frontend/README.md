@@ -12,6 +12,39 @@ ng serve
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
+## SSR and ZeroBounce
+
+- SSR is enabled via `src/server.ts`. A server-only email validation route is available at `POST /api/validate-email`.
+- The ZeroBounce API key must be provided via environment variable `ZEROBOUNCE_API_KEY` at runtime (server-side only). See `.env.example` for the variable name.
+
+### Run SSR locally
+
+1. Build the app (SSR bundles included):
+
+   ```bash
+   npm run build
+   ```
+
+2. Start the Node SSR server with your API key:
+
+   ```bash
+   set ZEROBOUNCE_API_KEY=your_key_here && npm run serve:ssr:exam-share-frontend
+   ```
+
+   On macOS/Linux:
+
+   ```bash
+   ZEROBOUNCE_API_KEY=your_key_here npm run serve:ssr:exam-share-frontend
+   ```
+
+3. Open `http://localhost:4000/`.
+
+### How it works
+
+- Client code calls `POST /api/validate-email` (see `src/app/services/email.service.ts`).
+- The Node server handles the request in `src/server.ts` and uses a server-only helper `src/server/emailValidator.ts` to call the ZeroBounce API with the secret key.
+- The API key is never shipped to the browser.
+
 ## Code scaffolding
 
 Angular CLI includes powerful code scaffolding tools. To generate a new component, run:

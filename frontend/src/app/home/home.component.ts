@@ -1,5 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Firestore, collection, collectionData } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
@@ -16,15 +16,20 @@ export class HomeComponent implements OnInit {
   posts$: Observable<any[]> = new Observable(); // Firestoreからの投稿データを格納
   selectedPost: any = null; // 詳細表示用の選択された投稿データ
 
-  constructor() {}
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
   ngOnInit() {
-    const postsCollection = collection(this.firestore, 'posts');
-    this.posts$ = collectionData(postsCollection);
+    if (isPlatformBrowser(this.platformId)) {
+      const postsCollection = collection(this.firestore, 'posts');
+      this.posts$ = collectionData(postsCollection);
 
-    this.posts$.subscribe((data) => {
-      console.log('Firestoreから取得したデータ:', data);
-    });
+      this.posts$.subscribe((data) => {
+        console.log('Firestoreから取得したデータ:', data);
+      });
+    } else {
+      // SSR/プリレンダー環境ではFirestore購読を行わない
+      this.posts$ = new Observable();
+    }
   }
 
   // 詳細画面を表示
