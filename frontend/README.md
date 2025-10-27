@@ -25,16 +25,13 @@ Once the server is running, open your browser and navigate to `http://localhost:
    npm run build
    ```
 
-2. Start the Node SSR server with your API key:
+2. Start the Node SSR server (env auto-load):
+
+   - Create `.env` based on `.env.example` and set `ZEROBOUNCE_API_KEY=...` (and optional `ZEROBOUNCE_ALLOW`)
+   - Then simply run:
 
    ```bash
-   set ZEROBOUNCE_API_KEY=your_key_here && npm run serve:ssr:exam-share-frontend
-   ```
-
-   On macOS/Linux:
-
-   ```bash
-   ZEROBOUNCE_API_KEY=your_key_here npm run serve:ssr:exam-share-frontend
+   npm run serve:ssr:exam-share-frontend
    ```
 
 3. Open `http://localhost:4000/`.
@@ -44,6 +41,7 @@ Once the server is running, open your browser and navigate to `http://localhost:
 - Client code calls `POST /api/validate-email` (see `src/app/services/email.service.ts`).
 - The Node server handles the request in `src/server.ts` and uses a server-only helper `src/server/emailValidator.ts` to call the ZeroBounce API with the secret key.
 - The API key is never shipped to the browser.
+- SSR server auto-loads environment variables from `.env` via `node --env-file=.env`.
 
 ## Code scaffolding
 
