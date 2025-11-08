@@ -1,11 +1,10 @@
-// filepath: c:\Users\iosut\reactproject\exam-share\frontend\src\server.ts
 import express from 'express';
 import {
   AngularNodeAppEngine,
   createNodeRequestHandler,
   writeResponseToNodeResponse,
 } from '@angular/ssr/node';
-import { validateEmail, getEmailStatus } from './server/emailValidator';
+import { validateEmail } from './server/emailValidator';
 import { dirname, resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 // Import internal setters to register manifests at runtime
@@ -58,52 +57,29 @@ async function getAngularApp(): Promise<AngularNodeAppEngine> {
 
 const SSR_TIMEOUT = 60000; // 60秒
 
+
 // ★ /api に JSON パーサ
 app.use('/api', express.json());
 
-// Relaxed ZeroBounce policy (env-configurable)
-const BLOCKED_STATUSES = new Set(['spamtrap', 'abuse', 'do_not_mail']);
-function isAllowedStatus(status: string): boolean {
-  if (!status) return false;
-  if (BLOCKED_STATUSES.has(status)) return false;
-  const allowEnv = process.env['ZEROBOUNCE_ALLOW'];
-  if (allowEnv) {
-    const allowed = new Set(
-      allowEnv
-        .split(',')
-        .map((s) => s.trim().toLowerCase())
-        .filter(Boolean)
-    );
-    return allowed.has(status);
-  }
-  // Default: allow 'valid' and 'catch-all'
-  return status === 'valid' || status === 'catch-all';
-}
-
-// ★ API を先に定義（SSR より前）
 app.post('/api/validate-email', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email is required' });
-
   try {
-    const status = await getEmailStatus(email);
-    const isValid = isAllowedStatus(String(status));
-    return res.json({ email, isValid, status });
+    const isValid = await validateEmail(email);
+    return res.json({ email, isValid });
   } catch (error) {
     console.error('validate-email error:', error);
     return res.status(500).json({ error: 'Failed to validate email' });
   }
 });
 
-// Optional debug GET endpoint: /api/validate-email?email=...
 app.get('/api/validate-email', async (req, res) => {
   const qEmail = (req.query as any)['email'];
   const email = Array.isArray(qEmail) ? (qEmail[0] as string) : ((qEmail as string) || '');
   if (!email) return res.status(400).json({ error: 'Email is required' });
   try {
-    const status = await getEmailStatus(email);
-    const isValid = isAllowedStatus(String(status));
-    return res.json({ email, isValid, status });
+    const isValid = await validateEmail(email);
+    return res.json({ email, isValid });
   } catch (error) {
     console.error('validate-email error:', error);
     return res.status(500).json({ error: 'Failed to validate email' });

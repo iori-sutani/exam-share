@@ -8,8 +8,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:exam-share-frontend": "node --env-file=.env dist/exam-share-frontend/server/server.mjs",
-    "build:ssr": "ng build && ng run frontend:server",
-    "serve:ssr": "node dist/server/main.js"
+  "build:ssr": "ng build && ng run exam-share-frontend:server",
+  "serve:ssr": "node dist/exam-share-frontend/server/server.mjs"
   },
   "private": true,
   "dependencies": {
