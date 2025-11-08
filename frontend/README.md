@@ -1,90 +1,66 @@
-# ExamShareexam-share-frontend
+# exam-share-frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.13.
+## 概要
 
-## Development server
+大学の試験情報や過去問、メモ、写真などを共有できる Web アプリケーションです。Angular と Firebase を利用しています。
 
-To start a local development server, run:
+## 使用技術
 
-```bash
-ng serve
-```
+- Angular 19
+- Angular Universal (SSR)
+- Firebase (Firestore, Storage)
+- TypeScript
+- Node.js / Express
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## 環境構築
 
-## SSR and ZeroBounce
-
-- SSR is enabled via `src/server.ts`. A server-only email validation route is available at `POST /api/validate-email`.
-- The ZeroBounce API key must be provided via environment variable `ZEROBOUNCE_API_KEY` at runtime (server-side only). See `.env.example` for the variable name.
-
-### Run SSR locally
-
-1. Build the app (SSR bundles included):
-
-   ```bash
-   npm run build
+1. リポジトリをクローン
+   ```powershell
+   git clone https://github.com/iori-sutani/exam-share.git
+   cd exam-share/frontend
+   ```
+2. 依存パッケージのインストール
+   ```powershell
+   npm install
    ```
 
-2. Start the Node SSR server (env auto-load):
+## 開発サーバーの起動
 
-   - Create `.env` based on `.env.example` and set `ZEROBOUNCE_API_KEY=...` (and optional `ZEROBOUNCE_ALLOW`)
-   - Then simply run:
+```powershell
+npm start
+```
 
-   ```bash
-   npm run serve:ssr:exam-share-frontend
+`http://localhost:4200` でアプリを確認できます。
+
+## SSR（サーバーサイドレンダリング）起動手順
+
+1. SSR ビルド
+   ```powershell
+   npm run build:ssr
    ```
+2. SSR サーバー起動
+   ```powershell
+   npm run serve:ssr
+   ```
+   `http://localhost:4000` で SSR 版アプリを確認できます。
 
-3. Open `http://localhost:4000/`.
+## メールアドレスバリデーションについて
 
-### How it works
+- 現在はテスト用として `00000000@ed.tmu.ac.jp` のみ投稿可能です。
+- メールアドレスチェックの方法については検討中です。
 
-- Client code calls `POST /api/validate-email` (see `src/app/services/email.service.ts`).
-- The Node server handles the request in `src/server.ts` and uses a server-only helper `src/server/emailValidator.ts` to call the ZeroBounce API with the secret key.
-- The API key is never shipped to the browser.
-- SSR server auto-loads environment variables from `.env` via `node --env-file=.env`.
+## ディレクトリ構成
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
 ```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
+frontend/
+  ├── src/
+  │   ├── app/         # Angularアプリ本体
+  │   ├── environments # 環境設定
+  │   ├── server/      # SSR用サーバーコード
+  │   └── index.html
+  ├── public/          # 公開用静的ファイル
+  ├── .env.example     # 環境変数サンプル
+  ├── firebase.json    # Firebase設定
+  ├── package.json     # npmスクリプト・依存
+  └── README.md
 ```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
