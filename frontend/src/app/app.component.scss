@@ -1,0 +1,83 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: auto;
+  background: #1976d2;
+  padding: 0.4rem 0.8rem;
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.hamburger {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  margin-left: auto;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 6px;
+}
+
+.bar {
+  width: 22px;
+  height: 3px;
+  background-color: #fff;
+  margin: 3px 0;
+  border-radius: 2px;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.hamburger.open .bar-1 {
+  transform: translateY(9px) rotate(45deg);
+}
+
+.hamburger.open .bar-2 {
+  opacity: 0;
+}
+
+.hamburger.open .bar-3 {
+  transform: translateY(-9px) rotate(-45deg);
+}
+
+/* Smooth revert when closing */
+.hamburger:not(.open) .bar {
+  transform: none;
+  opacity: 1;
+}
+
+.menu {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	position: absolute;
+	top: 100%;
+	right: 0;
+	background: #1976d2;
+	width: 200px;
+	display: none;
+	z-index: 1100;
+	border-radius: 0 0 8px 8px;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.menu.open {
+	display: block;
+}
+.menu li {
+	border-bottom: 1px solid #1565c0;
+}
+.menu li a {
+	display: block;
+	padding: 1rem;
+	color: #fff;
+	text-decoration: none;
+	font-weight: 500;
+}
+.menu li a:hover {
+	background: #1565c0;
+}

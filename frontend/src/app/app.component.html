@@ -1,1 +1,14 @@
-<router-outlet />
+<nav class="navbar">
+	<button class="hamburger" [class.open]="menuOpen" (click)="menuOpen = !menuOpen" aria-label="Toggle menu">
+		<div class="bar bar-1" aria-hidden="true"></div>
+		<div class="bar bar-2" aria-hidden="true"></div>
+		<div class="bar bar-3" aria-hidden="true"></div>
+	</button>
+	<ul class="menu" [class.open]="menuOpen">
+		<li><a [routerLink]="['/']" (click)="menuOpen = false">ホーム</a></li>
+		<li><a [routerLink]="['/post']" (click)="menuOpen = false">投稿</a></li>
+		<li><a [routerLink]="['/search']" (click)="menuOpen = false">検索</a></li>
+	</ul>
+</nav>
+
+<router-outlet></router-outlet>
