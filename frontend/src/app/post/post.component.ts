@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Firestore, collection, addDoc } from '@angular/fire/firestore';
 import { Storage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage';
-import { checkEmailValidity } from '../services/email.service';
+import { EmailApiAdapter } from '../../infrastructure/http/email-api-adapter';
 import { emailPatternValidator } from '../validators/email-domain.validator'; // カスタムバリデーターをインポート
 
 @Component({
@@ -23,7 +23,7 @@ export class PostComponent {
 	// メモ文字数カウント
 	memoCount = () => this.form.get('memo')?.value?.length ?? 0;
 
-	constructor(private fb: FormBuilder, private firestore: Firestore, private storage: Storage) {
+	constructor(private fb: FormBuilder, private firestore: Firestore, private storage: Storage, private emailValidator: EmailApiAdapter) {
 			this.form = this.fb.group({
 				photo: [null, Validators.required],
 				year: [new Date().getFullYear(), Validators.required],
@@ -95,7 +95,7 @@ export class PostComponent {
 
 		try {
 			// メールアドレスの検証
-			const isEmailValid = await checkEmailValidity(email);
+			const isEmailValid = await this.emailValidator.validate(email);
 			if (!isEmailValid) {
 				this.errorMessage.set('無効なメールアドレスです。');
 				this.submitting.set(false);
