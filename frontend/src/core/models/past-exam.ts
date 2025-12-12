@@ -1,4 +1,4 @@
-export interface Post {
+export interface PastExam {
   id?: string;
   subject: string;
   term: 'spring' | 'fall';
@@ -9,4 +9,4 @@ export interface Post {
   createdAt: Date;
 }
 
-export type NewPost = Omit<Post, 'id' | 'createdAt'> & { createdAt?: Date };
+export type NewPastExam = Omit<PastExam, 'id' | 'createdAt'> & { createdAt?: Date };

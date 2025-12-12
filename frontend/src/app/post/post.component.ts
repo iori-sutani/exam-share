@@ -3,8 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Firestore, collection, addDoc } from '@angular/fire/firestore';
 import { Storage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage';
-import { EmailApiAdapter } from '../../infrastructure/http/email-api-adapter';
+import { EmailValidator } from '../../core/ports/email-validator';
 import { emailPatternValidator } from '../validators/email-domain.validator'; // カスタムバリデーターをインポート
+import { PastExam } from '../../core/models/past-exam';
 
 @Component({
 	selector: 'app-post',
@@ -23,7 +24,7 @@ export class PostComponent {
 	// メモ文字数カウント
 	memoCount = () => this.form.get('memo')?.value?.length ?? 0;
 
-	constructor(private fb: FormBuilder, private firestore: Firestore, private storage: Storage, private emailValidator: EmailApiAdapter) {
+	constructor(private fb: FormBuilder, private firestore: Firestore, private storage: Storage, private emailValidator: EmailValidator) {
 			this.form = this.fb.group({
 				photo: [null, Validators.required],
 				year: [new Date().getFullYear(), Validators.required],
@@ -108,11 +109,16 @@ export class PostComponent {
 				photoUrl = await this.uploadImageAndGetUrl(file);
 			}
 
-			const data = {
-				...this.form.value,
-				photo: photoUrl,
-				createdAt: new Date()
-			};
+      const fv = this.form.value;
+      const data: PastExam = {
+        subject: fv.subject,
+        term: fv.term,
+        year: Number(fv.year),
+        memo: fv.memo ?? '',
+        photo: photoUrl,
+        email: fv.email,
+        createdAt: new Date()
+      };
 			await addDoc(collection(this.firestore, 'posts'), data);
 
 			setTimeout(() => {

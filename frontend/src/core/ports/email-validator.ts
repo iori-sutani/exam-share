@@ -1,3 +1,3 @@
-export interface EmailValidator {
-  validate(email: string): Promise<boolean>;
+export abstract class EmailValidator {
+  abstract validate(email: string): Promise<boolean>;
 }

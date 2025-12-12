@@ -8,6 +8,8 @@ import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { provideStorage, getStorage } from '@angular/fire/storage';
 import { firebaseConfig } from '../environments/environment';
+import { EmailValidator } from '../core/ports/email-validator';
+import { EmailApiAdapter } from '../infrastructure/http/email-api-adapter';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,6 +18,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(),
     provideFirebaseApp(() => initializeApp(firebaseConfig)),
     provideFirestore(() => getFirestore()),
-    provideStorage(() => getStorage())
+    provideStorage(() => getStorage()),
+    { provide: EmailValidator, useClass: EmailApiAdapter }
   ],
 };
