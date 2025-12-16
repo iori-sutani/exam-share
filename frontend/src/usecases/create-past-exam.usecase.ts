@@ -16,22 +16,22 @@ export class CreatePastExamUseCase {
   async execute(input: NewPastExam): Promise<string> {
     // Basic validation rules
     const subject = (input.subject ?? '').trim();
-    if (!subject) throw new Error('subject_required');
-    if (subject.length > 100) throw new Error('subject_too_long');
+    if (!subject) throw new Error('科目名を入力してください');
+    if (subject.length > 100) throw new Error('科目名は100文字以内で入力してください');
 
     const current = new Date().getFullYear();
     if (typeof input.year !== 'number' || input.year < current - 8 || input.year > current) {
-      throw new Error('invalid_year');
+      throw new Error('適切な年度を入力してください');
     }
 
-    if (!['spring', 'fall'].includes(input.term)) throw new Error('invalid_term');
+    if (!['spring', 'fall'].includes(input.term)) throw new Error("前期/後期を選択してください");
 
-    if (input.memo && input.memo.length > 500) throw new Error('memo_too_long');
+    if (input.memo && input.memo.length > 500) throw new Error('メモは500文字以内で入力してください');
 
-    if (!input.email) throw new Error('email_required');
+    if (!input.email) throw new Error('大学のメールアドレスを入力してください');
 
     const isEmailOk = await this.emailValidator.validate(input.email);
-    if (!isEmailOk) throw new Error('email_invalid');
+    if (!isEmailOk) throw new Error('大学のメールアドレスが正しくありません');
 
     const exam: PastExam = {
       subject,
