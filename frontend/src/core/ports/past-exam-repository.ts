@@ -1,4 +1,5 @@
 import { PastExam } from '../models/past-exam';
+import { Observable } from 'rxjs';
 
 export abstract class PastExamRepository {
   /**
@@ -6,5 +7,8 @@ export abstract class PastExamRepository {
    */
   abstract create(exam: PastExam): Promise<string>;
 
-  // future: list/get/update/delete
+  /**
+   * Get recent past exams.
+   */
+  abstract getRecentExams(): Observable<PastExam[]>;
 }

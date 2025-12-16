@@ -16,6 +16,7 @@ import { FirestorePastExamRepository } from '../infrastructure/repositories/fire
 
 // Use Cases
 import { CreatePastExamUseCase } from '../usecases/create-past-exam.usecase';
+import { GetRecentPastExamsUseCase } from '../usecases/get-recent-past-exams.usecase';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -35,6 +36,11 @@ export const appConfig: ApplicationConfig = {
       provide: CreatePastExamUseCase,
       useFactory: (repo: PastExamRepository, validator: EmailValidator) => new CreatePastExamUseCase(repo, validator),
       deps: [PastExamRepository, EmailValidator]
+    },
+    {
+      provide: GetRecentPastExamsUseCase,
+      useFactory: (repo: PastExamRepository) => new GetRecentPastExamsUseCase(repo),
+      deps: [PastExamRepository]
     }
   ],
 };
