@@ -1,11 +1,10 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Firestore, collection, addDoc } from '@angular/fire/firestore';
 import { Storage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage';
-import { EmailValidator } from '../../core/ports/email-validator';
-import { emailPatternValidator } from '../validators/email-domain.validator'; // カスタムバリデーターをインポート
-import { PastExam } from '../../core/models/past-exam';
+import { emailPatternValidator } from '../validators/email-domain.validator';
+import { CreatePastExamUseCase } from '../../usecases/create-past-exam.usecase';
+import { NewPastExam } from '../../core/models/past-exam';
 
 @Component({
 	selector: 'app-post',
@@ -19,12 +18,16 @@ export class PostComponent {
 	years: number[] = [];
 	previewSrc = signal<string | null>(null);
 	submitting = signal(false);
-	errorMessage = signal<string | null>(null); // エラーメッセージ用の状態
+	errorMessage = signal<string | null>(null);
 
 	// メモ文字数カウント
 	memoCount = () => this.form.get('memo')?.value?.length ?? 0;
 
-	constructor(private fb: FormBuilder, private firestore: Firestore, private storage: Storage, private emailValidator: EmailValidator) {
+	constructor(
+    private fb: FormBuilder,
+    private storage: Storage,
+    private createPastExamUseCase: CreatePastExamUseCase
+  ) {
 			this.form = this.fb.group({
 				photo: [null, Validators.required],
 				year: [new Date().getFullYear(), Validators.required],
@@ -80,11 +83,11 @@ export class PostComponent {
 	}
 
   async uploadImageAndGetUrl(file: File): Promise<string> {
-  const filePath = `posts/${Date.now()}_${file.name}`;
-  const storageRef = ref(this.storage, filePath);
-  await uploadBytes(storageRef, file);
-  return await getDownloadURL(storageRef);
-}
+    const filePath = `posts/${Date.now()}_${file.name}`;
+    const storageRef = ref(this.storage, filePath);
+    await uploadBytes(storageRef, file);
+    return await getDownloadURL(storageRef);
+  }
 
 	// 送信処理
 	async onSubmit() {
@@ -92,17 +95,7 @@ export class PostComponent {
 		this.submitting.set(true);
 		this.errorMessage.set(null);
 
-		const email = this.form.value.email;
-
 		try {
-			// メールアドレスの検証
-			const isEmailValid = await this.emailValidator.validate(email);
-			if (!isEmailValid) {
-				this.errorMessage.set('無効なメールアドレスです。');
-				this.submitting.set(false);
-				return;
-			}
-
 			let photoUrl = '';
 			const file = this.form.value.photo;
 			if (file) {
@@ -110,16 +103,16 @@ export class PostComponent {
 			}
 
       const fv = this.form.value;
-      const data: PastExam = {
+      const input: NewPastExam = {
         subject: fv.subject,
         term: fv.term,
         year: Number(fv.year),
         memo: fv.memo ?? '',
         photo: photoUrl,
         email: fv.email,
-        createdAt: new Date()
       };
-			await addDoc(collection(this.firestore, 'posts'), data);
+
+      await this.createPastExamUseCase.execute(input);
 
 			setTimeout(() => {
 				alert('投稿が完了しました！');
@@ -133,9 +126,13 @@ export class PostComponent {
 				this.previewSrc.set(null);
 				this.submitting.set(false);
 			}, 1200);
-		} catch (error) {
+		} catch (error: any) {
 			console.error('投稿中にエラーが発生しました:', error);
-			this.errorMessage.set('投稿中にエラーが発生しました。');
+      if (error.message === 'email_invalid') {
+        this.errorMessage.set('無効なメールアドレスです。');
+      } else {
+        this.errorMessage.set('投稿中にエラーが発生しました。');
+      }
 			this.submitting.set(false);
 		}
 	}
