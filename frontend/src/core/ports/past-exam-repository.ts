@@ -11,4 +11,9 @@ export abstract class PastExamRepository {
    * Get recent past exams.
    */
   abstract getRecentExams(): Observable<PastExam[]>;
+
+  /**
+   * Get past exams by subject ID.
+   */
+  abstract findBySubject(subjectId: string): Observable<PastExam[]>;
 }

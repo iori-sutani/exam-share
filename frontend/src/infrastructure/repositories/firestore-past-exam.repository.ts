@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, addDoc, collectionData, query, orderBy, limit } from '@angular/fire/firestore';
+import { Firestore, collection, addDoc, collectionData, query, orderBy, limit, doc, setDoc, collectionGroup } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PastExam } from '../../core/models/past-exam';
@@ -10,25 +10,47 @@ export class FirestorePastExamRepository implements PastExamRepository {
   constructor(private firestore: Firestore) {}
 
   async create(exam: PastExam): Promise<string> {
-    const colRef = collection(this.firestore, 'posts');
-    const docRef = await addDoc(colRef, exam);
+    // Sanitize subject name to create a safe document ID for the folder
+    // Replace slashes and other special chars with underscore
+    const subjectId = exam.subject.trim().replace(/[\/\\\?%*:|"<>]/g, '_');
+
+    // Ensure the subject "folder" (document) exists
+    const subjectDocRef = doc(this.firestore, 'subjects', subjectId);
+    await setDoc(subjectDocRef, { name: exam.subject }, { merge: true });
+
+    // Add the post to the 'posts' subcollection of the subject
+    const postsColRef = collection(this.firestore, 'subjects', subjectId, 'posts');
+    const docRef = await addDoc(postsColRef, exam);
+
     return docRef.id;
   }
 
   getRecentExams(): Observable<PastExam[]> {
-    const colRef = collection(this.firestore, 'posts');
-    // Example: Order by createdAt desc, limit 20
-    // Note: Requires an index in Firestore if filtering/sorting complexly.
-    // For now, just getting the collection as is or simple sort if possible.
-    // Let's assume we want them sorted by createdAt.
-    // If 'createdAt' is stored as a Timestamp, we might need to convert it.
-    // collectionData returns the raw data.
-    
-    const q = query(colRef, orderBy('createdAt', 'desc'), limit(50));
-    
-    return collectionData(q, { idField: 'id' }).pipe(
+    // Use collectionGroup to query all 'posts' collections across all subjects
+    const postsQuery = query(
+      collectionGroup(this.firestore, 'posts'),
+      orderBy('createdAt', 'desc'),
+      limit(50)
+    );
+
+    return collectionData(postsQuery, { idField: 'id' }).pipe(
       map(docs => docs.map(doc => {
         // Firestore Timestamp to Date conversion if needed
+        const data = doc as any;
+        return {
+          ...data,
+          createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(data.createdAt)
+        } as PastExam;
+      }))
+    );
+  }
+
+  findBySubject(subjectId: string): Observable<PastExam[]> {
+    const postsColRef = collection(this.firestore, 'subjects', subjectId, 'posts');
+    const q = query(postsColRef, orderBy('createdAt', 'desc'));
+
+    return collectionData(q, { idField: 'id' }).pipe(
+      map(docs => docs.map(doc => {
         const data = doc as any;
         return {
           ...data,

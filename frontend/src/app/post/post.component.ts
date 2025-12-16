@@ -1,7 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Storage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage';
 import { emailPatternValidator } from '../validators/email-domain.validator';
 import { CreatePastExamUseCase } from '../../usecases/create-past-exam.usecase';
 import { NewPastExam } from '../../core/models/past-exam';
@@ -25,7 +24,6 @@ export class PostComponent {
 
 	constructor(
     private fb: FormBuilder,
-    private storage: Storage,
     private createPastExamUseCase: CreatePastExamUseCase
   ) {
 			this.form = this.fb.group({
@@ -82,13 +80,6 @@ export class PostComponent {
 		this.previewSrc.set(null);
 	}
 
-  async uploadImageAndGetUrl(file: File): Promise<string> {
-    const filePath = `posts/${Date.now()}_${file.name}`;
-    const storageRef = ref(this.storage, filePath);
-    await uploadBytes(storageRef, file);
-    return await getDownloadURL(storageRef);
-  }
-
 	// 送信処理
 	async onSubmit() {
 		if (this.form.invalid) return;
@@ -96,11 +87,7 @@ export class PostComponent {
 		this.errorMessage.set(null);
 
 		try {
-			let photoUrl = '';
 			const file = this.form.value.photo;
-			if (file) {
-				photoUrl = await this.uploadImageAndGetUrl(file);
-			}
 
       const fv = this.form.value;
       const input: NewPastExam = {
@@ -108,11 +95,11 @@ export class PostComponent {
         term: fv.term,
         year: Number(fv.year),
         memo: fv.memo ?? '',
-        photo: photoUrl,
+        photo: '', // UseCase will handle upload and set URL
         email: fv.email,
       };
 
-      await this.createPastExamUseCase.execute(input);
+      await this.createPastExamUseCase.execute(input, file);
 
 			setTimeout(() => {
 				alert('投稿が完了しました！');

@@ -1,0 +1,19 @@
+<div class="container">
+  <h2 class="title">投稿一覧</h2>
+
+  <div class="posts" *ngIf="posts$ | async as posts; else loading">
+    <div class="post" *ngFor="let post of posts">
+      <h3 class="post-title">{{ post.subject }}</h3>
+      <p class="post-date">{{ post.createdAt | date:'mediumDate' }}</p>
+      <a [href]="post.photo" target="_blank" class="view-link">View Exam</a>
+    </div>
+
+    <div *ngIf="posts.length === 0" class="no-posts">
+      <p>No posts found for this subject.</p>
+    </div>
+  </div>
+
+  <ng-template #loading>
+    <div class="loading">Loading posts...</div>
+  </ng-template>
+</div>
